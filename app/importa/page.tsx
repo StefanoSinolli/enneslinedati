@@ -102,6 +102,73 @@ export default function ImportaPage() {
     }
   };
 
+  const handleExportData = () => {
+    try {
+      const spese = LocalDB.getSpeseAll();
+      const entrate = LocalDB.getEntrateAll();
+      
+      const exportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        data: {
+          spese,
+          entrate,
+        },
+        stats: {
+          totalSpese: spese.length,
+          totalEntrate: entrate.length,
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ennesline-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setSuccess(`Esportati ${spese.length} spese e ${entrate.length} entrate`);
+    } catch (err) {
+      setError(`Errore durante l'esportazione: ${err}`);
+    }
+  };
+
+  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const text = await file.text();
+      const importData = JSON.parse(text);
+
+      if (!importData.data || !importData.data.spese || !importData.data.entrate) {
+        throw new Error('Formato file non valido');
+      }
+
+      LocalDB.saveSpeseAll(importData.data.spese);
+      LocalDB.saveEntrateAll(importData.data.entrate);
+
+      setSuccess(`Importati con successo ${importData.data.spese.length} spese e ${importData.data.entrate.length} entrate`);
+      setStats({
+        spese: importData.data.spese.length,
+        entrate: importData.data.entrate.length,
+      });
+    } catch (err) {
+      setError(`Errore durante l'importazione JSON: ${err}`);
+    } finally {
+      setLoading(false);
+      // Reset input
+      event.target.value = '';
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -199,27 +266,71 @@ export default function ImportaPage() {
       {/* Utility */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Utility</h2>
-        <div className="flex gap-4 mb-4">
-          <button
-            onClick={() => {
-              const spese = LocalDB.getSpeseAll();
-              const entrate = LocalDB.getEntrateAll();
-              alert(`Dati salvati:\n- ${spese.length} spese\n- ${entrate.length} entrate\n\nAnni presenti:\nSpese: ${[...new Set(spese.map(s => s.anno))].join(', ')}\nEntrate: ${[...new Set(entrate.map(e => e.anno))].join(', ')}`);
-            }}
-            className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium"
-          >
-            Verifica Dati Salvati
-          </button>
-          <button
-            onClick={handleClearData}
-            className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium"
-          >
-            Elimina Tutti i Dati
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* Export/Import */}
+          <div className="border border-gray-200 rounded-lg p-4">
+            <h3 className="font-medium text-gray-900 mb-3">Backup e Sincronizzazione</h3>
+            <div className="space-y-2">
+              <button
+                onClick={handleExportData}
+                className="w-full bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors font-medium"
+              >
+                📥 Esporta Tutti i Dati (JSON)
+              </button>
+              <div>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportData}
+                  className="hidden"
+                  id="import-json"
+                  disabled={loading}
+                />
+                <label
+                  htmlFor="import-json"
+                  className="w-full block text-center bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium cursor-pointer"
+                >
+                  📤 Importa Dati da JSON
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Verifica e Cancella */}
+          <div className="border border-gray-200 rounded-lg p-4">
+            <h3 className="font-medium text-gray-900 mb-3">Gestione Dati</h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  const spese = LocalDB.getSpeseAll();
+                  const entrate = LocalDB.getEntrateAll();
+                  alert(`Dati salvati:\n- ${spese.length} spese\n- ${entrate.length} entrate\n\nAnni presenti:\nSpese: ${[...new Set(spese.map(s => s.anno))].join(', ')}\nEntrate: ${[...new Set(entrate.map(e => e.anno))].join(', ')}`);
+                }}
+                className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+              >
+                ℹ️ Verifica Dati Salvati
+              </button>
+              <button
+                onClick={handleClearData}
+                className="w-full bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium"
+              >
+                🗑️ Elimina Tutti i Dati
+              </button>
+            </div>
+          </div>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Usa "Verifica Dati Salvati" per controllare quanti record sono stati importati. "Elimina Tutti i Dati" cancellerà permanentemente tutti i dati importati.
-        </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            <strong>💡 Come sincronizzare i dati:</strong>
+          </p>
+          <ol className="text-sm text-blue-700 mt-2 ml-4 list-decimal space-y-1">
+            <li>Lavora in locale e modifica i tuoi dati</li>
+            <li>Clicca su "Esporta Tutti i Dati" per scaricare il file JSON</li>
+            <li>Apri l'app su Vercel (online)</li>
+            <li>Clicca su "Importa Dati da JSON" e carica il file</li>
+            <li>I tuoi dati sono ora sincronizzati online!</li>
+          </ol>
+        </div>
       </div>
     </div>
   );
