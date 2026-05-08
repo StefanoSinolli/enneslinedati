@@ -199,14 +199,26 @@ export default function ImportaPage() {
       {/* Utility */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Utility</h2>
-        <button
-          onClick={handleClearData}
-          className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium"
-        >
-          Elimina Tutti i Dati
-        </button>
+        <div className="flex gap-4 mb-4">
+          <button
+            onClick={() => {
+              const spese = LocalDB.getSpeseAll();
+              const entrate = LocalDB.getEntrateAll();
+              alert(`Dati salvati:\n- ${spese.length} spese\n- ${entrate.length} entrate\n\nAnni presenti:\nSpese: ${[...new Set(spese.map(s => s.anno))].join(', ')}\nEntrate: ${[...new Set(entrate.map(e => e.anno))].join(', ')}`);
+            }}
+            className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+          >
+            Verifica Dati Salvati
+          </button>
+          <button
+            onClick={handleClearData}
+            className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium"
+          >
+            Elimina Tutti i Dati
+          </button>
+        </div>
         <p className="text-sm text-gray-500 mt-2">
-          Attenzione: questa azione eliminerà permanentemente tutti i dati importati.
+          Usa "Verifica Dati Salvati" per controllare quanti record sono stati importati. "Elimina Tutti i Dati" cancellerà permanentemente tutti i dati importati.
         </p>
       </div>
     </div>
