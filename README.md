@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestionale Ennesline 💅✨
 
-## Getting Started
+Gestionale moderno per il centro estetica Ennesline, sviluppato con Next.js, TypeScript e Tailwind CSS.
 
-First, run the development server:
+## 🚀 Avvio Rapido
 
+Il server è già attivo su **http://localhost:3000**
+
+Per riavviarlo in futuro:
 ```bash
+cd /Applications/MAMP/htdocs/ennesline/gestionale
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📋 Funzionalità Implementate
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Dashboard
+- **Statistiche annuali**: Entrate totali, Spese totali, Saldo, Numero clienti
+- **Grafici interattivi**:
+  - Entrate vs Spese mensili (grafico a barre)
+  - Distribuzione entrate per categoria (grafico a torta)
+  - Distribuzione per tipo di pagamento (grafico a torta)
+- **Selezione anno**: 2024, 2025, 2026
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Importazione CSV
+- **Importazione multipla**: Carica tutti i file CSV di un anno in una volta
+- **Importazione singola**: Carica file specifici per mese/anno
+- **Auto-riconoscimento**: Il sistema legge automaticamente mese e anno dal nome del file
+- **Gestione duplicati**: Evita duplicazioni durante l'importazione
+- **Utility**: Cancellazione di tutti i dati
 
-## Learn More
+### 3. Storage Dati
+- **LocalStorage**: I dati vengono salvati nel browser (nessun bisogno di database esterno)
+- **Persistenza**: I dati rimangono anche chiudendo il browser
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Come Importare i Tuoi Dati CSV
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Vai su **http://localhost:3000/importa**
+2. Usa "Importazione Multipla" per caricare tutti i file CSV contemporaneamente
+3. Oppure usa "Importazione Singola" per caricare file specifici
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Formato File Supportato
+I tuoi file CSV esistenti sono già nel formato corretto:
+- `GENNAIO 2024-GENNAIO 2024.csv`
+- `FEBBRAIO 2024-FEBBRAIO 2024.csv`
+- etc.
 
-## Deploy on Vercel
+Il sistema riconosce automaticamente:
+- **Colonne Spese**: SPESE, DA PAGARE, PAGATO, SCADENZA
+- **Colonne Entrate**: ENTRATE, FATTURATO, TIPO PAGAMENTO, SERVIZIO, MACCHINARI, Info
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎨 Tecnologie Utilizzate
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js 16 (App Router)
+- **Linguaggio**: TypeScript
+- **Styling**: Tailwind CSS
+- **Grafici**: Recharts
+- **Icone**: Lucide React
+- **CSV Parser**: PapaParse
+- **Utility Date**: date-fns
+
+## 📊 Struttura Dati
+
+### Spesa
+```typescript
+{
+  id: string
+  descrizione: string
+  importo: number
+  daPagare: number
+  pagato: number
+  scadenza?: string
+  mese: string
+  anno: number
+}
+```
+
+### Entrata
+```typescript
+{
+  id: string
+  cliente: string
+  servizio: string
+  fatturato: number
+  tipoPagamento: 'B' | 'C' | 'N' | '-' // Bancomat, Contanti, Altro
+  categoria: 'E' | 'M' | 'P' // Estetica, Macchinari, Prodotti
+  macchinario?: 'L' | 'RF' | 'C' | 'PRESSO' // Laser, Radiofrequenza, Cellutrim
+  info?: string
+  data: string
+  mese: string
+  anno: number
+}
+```
+
+## 🔜 Prossimi Sviluppi (Opzionali)
+
+Se vorrai aggiungere altre funzionalità, possiamo implementare:
+
+- 📄 Pagine dedicate per visualizzare lista completa di Spese ed Entrate
+- 📝 Moduli per aggiungere/modificare spese ed entrate manualmente
+- 📅 Vista calendario con appuntamenti
+- 👥 Anagrafica clienti
+- 📈 Report mensili/annuali esportabili in PDF
+- 🔔 Notifiche per scadenze pagamenti
+- 💾 Backup e ripristino dati
+- ☁️ Sincronizzazione cloud (Supabase)
+
+## 🚢 Deploy su Vercel (Gratuito)
+
+Quando sarai pronto per mettere online il gestionale:
+
+1. Crea un repository GitHub
+2. Push del codice
+3. Connetti a Vercel
+4. Deploy automatico!
+
+## 📱 Responsive Design
+
+Il gestionale funziona perfettamente su:
+- 💻 Desktop
+- 📱 Tablet
+- 📱 Smartphone
+
+## 🎯 Note Importanti
+
+- I dati sono salvati nel **localStorage del browser**
+- Usa sempre lo **stesso browser** per accedere ai dati
+- Fai backup periodici esportando i dati
+- Per produzione, considera di passare a un database cloud (Supabase)
+
+---
+
+**Sviluppato con ❤️ per Ennesline**
