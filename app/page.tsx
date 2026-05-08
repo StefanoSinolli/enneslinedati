@@ -135,7 +135,7 @@ export default function HomePage() {
               <XAxis dataKey="mese" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip 
-                formatter={(value: string | number | undefined) => {
+                formatter={(value: any) => {
                   const numValue = typeof value === 'number' ? value : parseFloat(String(value || 0));
                   return isNaN(numValue) ? '€ 0' : `€ ${numValue.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
                 }}
@@ -168,7 +168,7 @@ export default function HomePage() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: string | number | undefined) => {
+                <Tooltip formatter={(value: any) => {
                   const numValue = typeof value === 'number' ? value : parseFloat(String(value || 0));
                   return isNaN(numValue) ? '€ 0' : `€ ${numValue.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
                 }} />
@@ -202,7 +202,7 @@ export default function HomePage() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: string | number | undefined) => {
+              <Tooltip formatter={(value: any) => {
                 const numValue = typeof value === 'number' ? value : parseFloat(String(value || 0));
                 return isNaN(numValue) ? '€ 0' : `€ ${numValue.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
               }} />
