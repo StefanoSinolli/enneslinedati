@@ -135,7 +135,7 @@ export default function HomePage() {
               <XAxis dataKey="mese" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip 
-                formatter={(value: number) => `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
+                formatter={(value: number | undefined) => value !== undefined ? `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}` : '€ 0'}
                 contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
               />
               <Legend />
@@ -165,7 +165,7 @@ export default function HomePage() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`} />
+                <Tooltip formatter={(value: number | undefined) => value !== undefined ? `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}` : '€ 0'} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -196,7 +196,7 @@ export default function HomePage() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`} />
+              <Tooltip formatter={(value: number | undefined) => value !== undefined ? `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}` : '€ 0'} />
             </PieChart>
           </ResponsiveContainer>
         ) : (
