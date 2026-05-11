@@ -22,11 +22,11 @@ export default function HomePage() {
   }, [annoCorrente]);
 
   // Calcoli statistiche
-  const totaleSpeseImporto = spese.reduce((sum, s) => sum + s.importo, 0);
-  const totaleSpeseGiaPagato = spese.reduce((sum, s) => sum + s.pagato, 0);
-  const totaleSpeseDaPagare = spese.reduce((sum, s) => sum + s.daPagare, 0);
+  const totaleSpeseAnno = spese.reduce((sum, s) => sum + s.importo, 0);  // Totale spese
+  const totaleSpeseGiaPagato = spese.reduce((sum, s) => sum + s.pagato, 0);  // Già pagato
+  const totaleSpeseDaPagare = spese.reduce((sum, s) => sum + s.daPagare, 0);  // Da pagare
   const totaleEntrateAnno = entrate.reduce((sum, e) => sum + (e.fatturato || 0), 0);
-  const saldo = totaleEntrateAnno - totaleSpeseImporto;
+  const saldo = totaleEntrateAnno - totaleSpeseAnno;
   const clienti = new Set(entrate.map(e => e.cliente)).size;
 
   // Dati per grafici mensili
@@ -38,7 +38,7 @@ export default function HomePage() {
     
     return {
       mese: mese.substring(0, 3),
-      spese: speseDelMese.reduce((sum, s) => sum + s.importo, 0),
+      spese: speseDelMese.reduce((sum, s) => sum + s.importo, 0),  // Usa importo (totale)
       entrate: entrateDelMese.reduce((sum, e) => sum + (e.fatturato || 0), 0),
     };
   });
@@ -94,7 +94,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Spese Totali</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">€ {totaleSpeseImporto.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-2">€ {totaleSpeseAnno.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <TrendingDown className="w-6 h-6 text-purple-600" />
