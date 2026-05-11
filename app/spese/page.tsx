@@ -79,7 +79,7 @@ export default function SpesePage() {
 
   const totaleSpese = filteredSpese.reduce((sum, s) => sum + s.daPagare, 0);  // Totale = somma daPagare
   const totalePagato = filteredSpese.reduce((sum, s) => sum + s.pagato, 0);
-  const totaleDaPagare = filteredSpese.reduce((sum, s) => sum + s.daPagare, 0);
+  const rimanenteDaPagare = totaleSpese - totalePagato;  // Rimanente = Totale - Pagato
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -156,7 +156,7 @@ export default function SpesePage() {
           </div>
           <div>
             <p className="text-red-100">Da Pagare</p>
-            <p className="text-3xl font-bold mt-1">€ {totaleDaPagare.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+            <p className="text-3xl font-bold mt-1">€ {rimanenteDaPagare.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
           </div>
           <div>
             <p className="text-red-100">Numero Spese</p>
