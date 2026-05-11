@@ -22,9 +22,11 @@ export default function HomePage() {
   }, [annoCorrente]);
 
   // Calcoli statistiche
-  const totaleSpeseAnno = spese.reduce((sum, s) => sum + s.pagato, 0);
+  const totaleSpeseImporto = spese.reduce((sum, s) => sum + s.importo, 0);
+  const totaleSpeseGiaPagato = spese.reduce((sum, s) => sum + s.pagato, 0);
+  const totaleSpeseDaPagare = spese.reduce((sum, s) => sum + s.daPagare, 0);
   const totaleEntrateAnno = entrate.reduce((sum, e) => sum + (e.fatturato || 0), 0);
-  const saldo = totaleEntrateAnno - totaleSpeseAnno;
+  const saldo = totaleEntrateAnno - totaleSpeseImporto;
   const clienti = new Set(entrate.map(e => e.cliente)).size;
 
   // Dati per grafici mensili
@@ -36,7 +38,7 @@ export default function HomePage() {
     
     return {
       mese: mese.substring(0, 3),
-      spese: speseDelMese.reduce((sum, s) => sum + s.pagato, 0),
+      spese: speseDelMese.reduce((sum, s) => sum + s.importo, 0),
       entrate: entrateDelMese.reduce((sum, e) => sum + (e.fatturato || 0), 0),
     };
   });
@@ -75,7 +77,7 @@ export default function HomePage() {
       </div>
 
       {/* Cards statistiche */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
@@ -92,7 +94,31 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Spese Totali</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">€ {totaleSpeseAnno.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-2">€ {totaleSpeseImporto.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <TrendingDown className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Già Pagato</p>
+              <p className="text-2xl font-bold text-green-700 mt-2">€ {totaleSpeseGiaPagato.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <TrendingDown className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Da Pagare</p>
+              <p className="text-2xl font-bold text-red-700 mt-2">€ {totaleSpeseDaPagare.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
               <TrendingDown className="w-6 h-6 text-red-600" />
@@ -113,7 +139,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Riga aggiuntiva con Clienti */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
