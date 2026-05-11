@@ -62,8 +62,8 @@ export default function SpesePage() {
       id: `spesa-${Date.now()}`,
       descrizione: '',
       importo: 0,
-      pagato: 0,  // Sempre 0
-      daPagare: 0,  // Sempre 0
+      pagato: 0,
+      daPagare: 0,
       mese: meseFiltro !== 'TUTTI' ? meseFiltro : 'GENNAIO',
       anno: annoFiltro,
     });
@@ -78,6 +78,8 @@ export default function SpesePage() {
   };
 
   const totaleSpese = filteredSpese.reduce((sum, s) => sum + s.importo, 0);
+  const totalePagato = filteredSpese.reduce((sum, s) => sum + s.pagato, 0);
+  const totaleDaPagare = filteredSpese.reduce((sum, s) => sum + s.daPagare, 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -143,10 +145,18 @@ export default function SpesePage() {
 
       {/* Statistiche */}
       <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl shadow-sm p-6 text-white mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
             <p className="text-red-100">Totale Spese</p>
             <p className="text-3xl font-bold mt-1">€ {totaleSpese.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div>
+            <p className="text-red-100">Già Pagato</p>
+            <p className="text-3xl font-bold mt-1">€ {totalePagato.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div>
+            <p className="text-red-100">Da Pagare</p>
+            <p className="text-3xl font-bold mt-1">€ {totaleDaPagare.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
           </div>
           <div>
             <p className="text-red-100">Numero Spese</p>
@@ -164,6 +174,8 @@ export default function SpesePage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrizione</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Importo</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pagato</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Da Pagare</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scadenza</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
               </tr>
@@ -171,7 +183,7 @@ export default function SpesePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSpese.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                     Nessuna spesa trovata
                   </td>
                 </tr>
@@ -186,6 +198,14 @@ export default function SpesePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
                       € {spesa.importo.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600">
+                      € {spesa.pagato.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                      <span className={spesa.daPagare > 0 ? 'text-red-600 font-semibold' : 'text-gray-400'}>
+                        € {spesa.daPagare.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {spesa.scadenza || '-'}
@@ -231,14 +251,17 @@ function SpesaModal({ spesa, onSave, onClose }: { spesa: Spesa, onSave: (s: Spes
   const [formData, setFormData] = useState(spesa);
   const mesi = ['GENNAIO', 'FEBBRAIO', 'MARZO', 'APRILE', 'MAGGIO', 'GIUGNO', 'LUGLIO', 'AGOSTO', 'SETTEMBRE', 'OTTOBRE', 'NOVEMBRE', 'DICEMBRE'];
 
+  // Ricalcola importo quando cambiano pagato e daPagare
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      importo: prev.pagato + prev.daPagare
+    }));
+  }, [formData.pagato, formData.daPagare]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Imposta pagato e daPagare a 0
-    onSave({
-      ...formData,
-      pagato: 0,
-      daPagare: 0
-    });
+    onSave(formData);
   };
 
   return (
@@ -293,16 +316,36 @@ function SpesaModal({ spesa, onSave, onClose }: { spesa: Spesa, onSave: (s: Spes
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Importo *</label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.importo}
-                onChange={(e) => setFormData({ ...formData, importo: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pagato</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.pagato}
+                  onChange={(e) => setFormData({ ...formData, pagato: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Da Pagare</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.daPagare}
+                  onChange={(e) => setFormData({ ...formData, daPagare: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-700">Importo Totale:</span>
+                <span className="text-lg font-bold text-gray-900">
+                  € {formData.importo.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
 
             <div>
