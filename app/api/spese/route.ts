@@ -1,20 +1,9 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Configura neon per funzionare in development
-if (process.env.NODE_ENV === 'development') {
-  // @ts-ignore
-  globalThis.WebSocket = require('ws');
-}
-
 export async function GET(request: NextRequest) {
   try {
-    if (!process.env.DATABASE_URL) {
-      console.error('DATABASE_URL non definito');
-      return NextResponse.json({ error: 'Database non configurato' }, { status: 500 });
-    }
-    
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = neon(process.env.ENNES_DATABASE_URL!);
     const { searchParams } = new URL(request.url);
     const anno = searchParams.get('anno');
 
@@ -46,7 +35,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const sql = neon(process.env.DATABASE_URL!);
+    const sql = neon(process.env.ENNES_DATABASE_URL!);
     const body = await request.json();
 
     const { id, descrizione, importo, daPagare, pagato, scadenza, mese, anno } = body;
