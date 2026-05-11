@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const sql = neon(process.env.ENNES_URL!);
+    const sql = neon(process.env.ennes_POSTGRES_URL!);
     const { searchParams } = new URL(request.url);
     const anno = searchParams.get('anno');
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const sql = neon(process.env.ENNES_URL!);
+    const sql = neon(process.env.ennes_POSTGRES_URL!);
     const body = await request.json();
 
     const { id, cliente, servizio, fatturato, tipoPagamento, categoria, macchinario, info, data, mese, anno } = body;

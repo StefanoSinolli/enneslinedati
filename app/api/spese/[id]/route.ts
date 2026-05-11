@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const sql = neon(process.env.ENNES_URL!);
+    const sql = neon(process.env.ennes_POSTGRES_URL!);
 
     const spese = await sql`SELECT * FROM spese WHERE id = ${id}`;
 
@@ -40,7 +40,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const sql = neon(process.env.ENNES_URL!);
+    const sql = neon(process.env.ennes_POSTGRES_URL!);
     const body = await request.json();
 
     const { descrizione, importo, daPagare, pagato, scadenza, mese, anno } = body;
@@ -71,7 +71,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const sql = neon(process.env.ENNES_URL!);
+    const sql = neon(process.env.ennes_POSTGRES_URL!);
 
     await sql`DELETE FROM spese WHERE id = ${id}`;
 
