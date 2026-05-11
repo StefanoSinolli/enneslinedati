@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const sql = neon(process.env.ENNES_DATABASE_URL!);
+    const sql = neon(process.env.ENNES_URL!);
 
     const entrate = await sql`SELECT * FROM entrate WHERE id = ${id}`;
 
@@ -43,7 +43,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const sql = neon(process.env.ENNES_DATABASE_URL!);
+    const sql = neon(process.env.ENNES_URL!);
     const body = await request.json();
 
     const { cliente, servizio, fatturato, tipoPagamento, categoria, macchinario, info, data, mese, anno } = body;
@@ -77,7 +77,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const sql = neon(process.env.ENNES_DATABASE_URL!);
+    const sql = neon(process.env.ENNES_URL!);
 
     await sql`DELETE FROM entrate WHERE id = ${id}`;
 
