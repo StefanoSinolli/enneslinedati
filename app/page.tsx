@@ -12,8 +12,13 @@ export default function HomePage() {
   const [annoCorrente, setAnnoCorrente] = useState(2026);
 
   useEffect(() => {
-    setSpese(LocalDB.getSpeseByAnno(annoCorrente));
-    setEntrate(LocalDB.getEntrateByAnno(annoCorrente));
+    const loadData = async () => {
+      const speseData = await LocalDB.getSpeseByAnno(annoCorrente);
+      const entrateData = await LocalDB.getEntrateByAnno(annoCorrente);
+      setSpese(speseData);
+      setEntrate(entrateData);
+    };
+    loadData();
   }, [annoCorrente]);
 
   // Calcoli statistiche
@@ -62,6 +67,7 @@ export default function HomePage() {
           onChange={(e) => setAnnoCorrente(Number(e.target.value))}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
         >
+          <option value={2023}>2023</option>
           <option value={2024}>2024</option>
           <option value={2025}>2025</option>
           <option value={2026}>2026</option>

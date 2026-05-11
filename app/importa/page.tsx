@@ -25,15 +25,15 @@ export default function ImportaPage() {
       const { spese, entrate } = parseCSVSpese(text, mese, anno);
 
       // Salva i dati
-      const speseEsistenti = LocalDB.getSpeseAll();
-      const entrateEsistenti = LocalDB.getEntrateAll();
+      const speseEsistenti = await LocalDB.getSpeseAll();
+      const entrateEsistenti = await LocalDB.getEntrateAll();
 
       // Rimuovi dati esistenti per questo mese/anno per evitare duplicati
       const speseFiltered = speseEsistenti.filter(s => !(s.anno === anno && s.mese === mese));
       const entrateFiltered = entrateEsistenti.filter(e => !(e.anno === anno && e.mese === mese));
 
-      LocalDB.saveSpeseAll([...speseFiltered, ...spese]);
-      LocalDB.saveEntrateAll([...entrateFiltered, ...entrate]);
+      await LocalDB.saveSpeseAll([...speseFiltered, ...spese]);
+      await LocalDB.saveEntrateAll([...entrateFiltered, ...entrate]);
 
       setSuccess(`Importazione completata: ${mese} ${anno}`);
       setStats({ spese: spese.length, entrate: entrate.length });
@@ -72,14 +72,14 @@ export default function ImportaPage() {
         const { spese, entrate } = parseCSVSpese(text, mese, anno);
 
         // Salva i dati
-        const speseEsistenti = LocalDB.getSpeseAll();
-        const entrateEsistenti = LocalDB.getEntrateAll();
+        const speseEsistenti = await LocalDB.getSpeseAll();
+        const entrateEsistenti = await LocalDB.getEntrateAll();
 
         const speseFiltered = speseEsistenti.filter(s => !(s.anno === anno && s.mese === mese));
         const entrateFiltered = entrateEsistenti.filter(e => !(e.anno === anno && e.mese === mese));
 
-        LocalDB.saveSpeseAll([...speseFiltered, ...spese]);
-        LocalDB.saveEntrateAll([...entrateFiltered, ...entrate]);
+        await LocalDB.saveSpeseAll([...speseFiltered, ...spese]);
+        await LocalDB.saveEntrateAll([...entrateFiltered, ...entrate]);
 
         totalSpese += spese.length;
         totalEntrate += entrate.length;
@@ -94,18 +94,18 @@ export default function ImportaPage() {
     }
   };
 
-  const handleClearData = () => {
+  const handleClearData = async () => {
     if (confirm('Sei sicuro di voler eliminare tutti i dati? Questa azione non può essere annullata.')) {
-      LocalDB.clearAll();
+      await LocalDB.clearAll();
       setSuccess('Tutti i dati sono stati eliminati');
       setStats(null);
     }
   };
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
     try {
-      const spese = LocalDB.getSpeseAll();
-      const entrate = LocalDB.getEntrateAll();
+      const spese = await LocalDB.getSpeseAll();
+      const entrate = await LocalDB.getEntrateAll();
       
       const exportData = {
         version: '1.0',
@@ -152,8 +152,8 @@ export default function ImportaPage() {
         throw new Error('Formato file non valido');
       }
 
-      LocalDB.saveSpeseAll(importData.data.spese);
-      LocalDB.saveEntrateAll(importData.data.entrate);
+      await LocalDB.saveSpeseAll(importData.data.spese);
+      await LocalDB.saveEntrateAll(importData.data.entrate);
 
       setSuccess(`Importati con successo ${importData.data.spese.length} spese e ${importData.data.entrate.length} entrate`);
       setStats({
@@ -233,7 +233,7 @@ export default function ImportaPage() {
         <p className="text-gray-600 mb-4">Carica file CSV specifici per mese e anno:</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[2024, 2025, 2026].map(anno => (
+          {[2023, 2024, 2025, 2026].map(anno => (
             <div key={anno} className="border border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Anno {anno}</h3>
               <div className="space-y-2">
@@ -301,9 +301,9 @@ export default function ImportaPage() {
             <h3 className="font-medium text-gray-900 mb-3">Gestione Dati</h3>
             <div className="space-y-2">
               <button
-                onClick={() => {
-                  const spese = LocalDB.getSpeseAll();
-                  const entrate = LocalDB.getEntrateAll();
+                onClick={async () => {
+                  const spese = await LocalDB.getSpeseAll();
+                  const entrate = await LocalDB.getEntrateAll();
                   alert(`Dati salvati:\n- ${spese.length} spese\n- ${entrate.length} entrate\n\nAnni presenti:\nSpese: ${[...new Set(spese.map(s => s.anno))].join(', ')}\nEntrate: ${[...new Set(entrate.map(e => e.anno))].join(', ')}`);
                 }}
                 className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors font-medium"

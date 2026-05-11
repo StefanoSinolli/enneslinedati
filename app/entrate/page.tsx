@@ -24,8 +24,9 @@ export default function EntratePage() {
     filterEntrate();
   }, [entrate, annoFiltro, meseFiltro, searchTerm]);
 
-  const loadEntrate = () => {
-    setEntrate(LocalDB.getEntrateAll());
+  const loadEntrate = async () => {
+    const data = await LocalDB.getEntrateAll();
+    setEntrate(data);
   };
 
   const filterEntrate = () => {
@@ -45,10 +46,10 @@ export default function EntratePage() {
     setFilteredEntrate(filtered);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Sei sicuro di voler eliminare questa entrata?')) {
-      LocalDB.deleteEntrata(id);
-      loadEntrate();
+      await LocalDB.deleteEntrata(id);
+      await loadEntrate();
     }
   };
 
@@ -72,9 +73,9 @@ export default function EntratePage() {
     setShowModal(true);
   };
 
-  const handleSave = (entrata: Entrata) => {
-    LocalDB.saveEntrata(entrata);
-    loadEntrate();
+  const handleSave = async (entrata: Entrata) => {
+    await LocalDB.saveEntrata(entrata);
+    await loadEntrate();
     setShowModal(false);
     setEditingEntrata(null);
   };
@@ -108,6 +109,7 @@ export default function EntratePage() {
               onChange={(e) => setAnnoFiltro(Number(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
+              <option value={2023}>2023</option>
               <option value={2024}>2024</option>
               <option value={2025}>2025</option>
               <option value={2026}>2026</option>
@@ -281,6 +283,7 @@ function EntrataModal({ entrata, onSave, onClose }: { entrata: Entrata, onSave: 
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 >
+                  <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
                   <option value={2025}>2025</option>
                   <option value={2026}>2026</option>

@@ -24,8 +24,9 @@ export default function SpesePage() {
     filterSpese();
   }, [spese, annoFiltro, meseFiltro, searchTerm]);
 
-  const loadSpese = () => {
-    setSpese(LocalDB.getSpeseAll());
+  const loadSpese = async () => {
+    const data = await LocalDB.getSpeseAll();
+    setSpese(data);
   };
 
   const filterSpese = () => {
@@ -44,10 +45,10 @@ export default function SpesePage() {
     setFilteredSpese(filtered);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Sei sicuro di voler eliminare questa spesa?')) {
-      LocalDB.deleteSpesa(id);
-      loadSpese();
+      await LocalDB.deleteSpesa(id);
+      await loadSpese();
     }
   };
 
@@ -69,9 +70,9 @@ export default function SpesePage() {
     setShowModal(true);
   };
 
-  const handleSave = (spesa: Spesa) => {
-    LocalDB.saveSpesa(spesa);
-    loadSpese();
+  const handleSave = async (spesa: Spesa) => {
+    await LocalDB.saveSpesa(spesa);
+    await loadSpese();
     setShowModal(false);
     setEditingSpesa(null);
   };
@@ -107,6 +108,7 @@ export default function SpesePage() {
               onChange={(e) => setAnnoFiltro(Number(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
+              <option value={2023}>2023</option>
               <option value={2024}>2024</option>
               <option value={2025}>2025</option>
               <option value={2026}>2026</option>
@@ -282,6 +284,7 @@ function SpesaModal({ spesa, onSave, onClose }: { spesa: Spesa, onSave: (s: Spes
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 >
+                  <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
                   <option value={2025}>2025</option>
                   <option value={2026}>2026</option>

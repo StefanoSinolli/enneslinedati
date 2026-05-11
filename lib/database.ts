@@ -2,89 +2,173 @@
 
 import { Spesa, Entrata, ResocontoMensile } from '@/types';
 
-const STORAGE_KEYS = {
-  SPESE: 'ennesline_spese',
-  ENTRATE: 'ennesline_entrate',
-  RESOCONTI: 'ennesline_resoconti',
-};
-
-// Database locale usando localStorage
+// Database usando API + PostgreSQL (Neon)
 export class LocalDB {
   // SPESE
-  static getSpeseAll(): Spesa[] {
-    if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem(STORAGE_KEYS.SPESE);
-    return data ? JSON.parse(data) : [];
-  }
-
-  static saveSpesa(spesa: Spesa) {
-    const spese = this.getSpeseAll();
-    const index = spese.findIndex(s => s.id === spesa.id);
-    if (index >= 0) {
-      spese[index] = spesa;
-    } else {
-      spese.push(spesa);
+  static async getSpeseAll(): Promise<Spesa[]> {
+    try {
+      const res = await fetch('/api/spese');
+      if (!res.ok) throw new Error('Errore nel caricamento spese');
+      return await res.json();
+    } catch (error) {
+      console.error('Errore getSpeseAll:', error);
+      return [];
     }
-    localStorage.setItem(STORAGE_KEYS.SPESE, JSON.stringify(spese));
   }
 
-  static saveSpeseAll(spese: Spesa[]) {
-    localStorage.setItem(STORAGE_KEYS.SPESE, JSON.stringify(spese));
+  static async saveSpesa(spesa: Spesa): Promise<void> {
+    try {
+      // Verifica se la spesa esiste già
+      const existing = await fetch(`/api/spese/${spesa.id}`);
+      const isUpdate = existing.ok;
+
+      if (isUpdate) {
+        // Update
+        const res = await fetch(`/api/spese/${spesa.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(spesa),
+        });
+        if (!res.ok) throw new Error('Errore aggiornamento spesa');
+      } else {
+        // Create
+        const res = await fetch('/api/spese', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(spesa),
+        });
+        if (!res.ok) throw new Error('Errore creazione spesa');
+      }
+    } catch (error) {
+      console.error('Errore saveSpesa:', error);
+      throw error;
+    }
   }
 
-  static deleteSpesa(id: string) {
-    const spese = this.getSpeseAll().filter(s => s.id !== id);
-    localStorage.setItem(STORAGE_KEYS.SPESE, JSON.stringify(spese));
+  static async saveSpeseAll(spese: Spesa[]): Promise<void> {
+    try {
+      for (const spesa of spese) {
+        await this.saveSpesa(spesa);
+      }
+    } catch (error) {
+      console.error('Errore saveSpeseAll:', error);
+      throw error;
+    }
+  }
+
+  static async deleteSpesa(id: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/spese/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Errore eliminazione spesa');
+    } catch (error) {
+      console.error('Errore deleteSpesa:', error);
+      throw error;
+    }
   }
 
   // ENTRATE
-  static getEntrateAll(): Entrata[] {
-    if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem(STORAGE_KEYS.ENTRATE);
-    return data ? JSON.parse(data) : [];
-  }
-
-  static saveEntrata(entrata: Entrata) {
-    const entrate = this.getEntrateAll();
-    const index = entrate.findIndex(e => e.id === entrata.id);
-    if (index >= 0) {
-      entrate[index] = entrata;
-    } else {
-      entrate.push(entrata);
+  static async getEntrateAll(): Promise<Entrata[]> {
+    try {
+      const res = await fetch('/api/entrate');
+      if (!res.ok) throw new Error('Errore nel caricamento entrate');
+      return await res.json();
+    } catch (error) {
+      console.error('Errore getEntrateAll:', error);
+      return [];
     }
-    localStorage.setItem(STORAGE_KEYS.ENTRATE, JSON.stringify(entrate));
   }
 
-  static saveEntrateAll(entrate: Entrata[]) {
-    localStorage.setItem(STORAGE_KEYS.ENTRATE, JSON.stringify(entrate));
+  static async saveEntrata(entrata: Entrata): Promise<void> {
+    try {
+      // Verifica se l'entrata esiste già
+      const existing = await fetch(`/api/entrate/${entrata.id}`);
+      const isUpdate = existing.ok;
+
+      if (isUpdate) {
+        // Update
+        const res = await fetch(`/api/entrate/${entrata.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entrata),
+        });
+        if (!res.ok) throw new Error('Errore aggiornamento entrata');
+      } else {
+        // Create
+        const res = await fetch('/api/entrate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entrata),
+        });
+        if (!res.ok) throw new Error('Errore creazione entrata');
+      }
+    } catch (error) {
+      console.error('Errore saveEntrata:', error);
+      throw error;
+    }
   }
 
-  static deleteEntrata(id: string) {
-    const entrate = this.getEntrateAll().filter(e => e.id !== id);
-    localStorage.setItem(STORAGE_KEYS.ENTRATE, JSON.stringify(entrate));
+  static async saveEntrateAll(entrate: Entrata[]): Promise<void> {
+    try {
+      for (const entrata of entrate) {
+        await this.saveEntrata(entrata);
+      }
+    } catch (error) {
+      console.error('Errore saveEntrateAll:', error);
+      throw error;
+    }
+  }
+
+  static async deleteEntrata(id: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/entrate/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Errore eliminazione entrata');
+    } catch (error) {
+      console.error('Errore deleteEntrata:', error);
+      throw error;
+    }
   }
 
   // FILTRI
-  static getSpeseByAnno(anno: number): Spesa[] {
-    return this.getSpeseAll().filter(s => s.anno === anno);
+  static async getSpeseByAnno(anno: number): Promise<Spesa[]> {
+    try {
+      const res = await fetch(`/api/spese?anno=${anno}`);
+      if (!res.ok) throw new Error('Errore nel caricamento spese per anno');
+      return await res.json();
+    } catch (error) {
+      console.error('Errore getSpeseByAnno:', error);
+      return [];
+    }
   }
 
-  static getSpeseByMese(anno: number, mese: string): Spesa[] {
-    return this.getSpeseAll().filter(s => s.anno === anno && s.mese === mese);
+  static async getSpeseByMese(anno: number, mese: string): Promise<Spesa[]> {
+    const spese = await this.getSpeseByAnno(anno);
+    return spese.filter(s => s.mese === mese);
   }
 
-  static getEntrateByAnno(anno: number): Entrata[] {
-    return this.getEntrateAll().filter(e => e.anno === anno);
+  static async getEntrateByAnno(anno: number): Promise<Entrata[]> {
+    try {
+      const res = await fetch(`/api/entrate?anno=${anno}`);
+      if (!res.ok) throw new Error('Errore nel caricamento entrate per anno');
+      return await res.json();
+    } catch (error) {
+      console.error('Errore getEntrateByAnno:', error);
+      return [];
+    }
   }
 
-  static getEntrateByMese(anno: number, mese: string): Entrata[] {
-    return this.getEntrateAll().filter(e => e.anno === anno && e.mese === mese);
+  static async getEntrateByMese(anno: number, mese: string): Promise<Entrata[]> {
+    const entrate = await this.getEntrateByAnno(anno);
+    return entrate.filter(e => e.mese === mese);
   }
 
   // CALCOLI
-  static calcolaResocontoMensile(anno: number, mese: string): ResocontoMensile {
-    const spese = this.getSpeseByMese(anno, mese);
-    const entrate = this.getEntrateByMese(anno, mese);
+  static async calcolaResocontoMensile(anno: number, mese: string): Promise<ResocontoMensile> {
+    const spese = await this.getSpeseByMese(anno, mese);
+    const entrate = await this.getEntrateByMese(anno, mese);
 
     const totaleSpese = spese.reduce((sum, s) => sum + s.importo, 0);
     const totalePagato = spese.reduce((sum, s) => sum + s.pagato, 0);
@@ -119,9 +203,23 @@ export class LocalDB {
   }
 
   // UTILITY
-  static clearAll() {
-    localStorage.removeItem(STORAGE_KEYS.SPESE);
-    localStorage.removeItem(STORAGE_KEYS.ENTRATE);
-    localStorage.removeItem(STORAGE_KEYS.RESOCONTI);
+  static async clearAll(): Promise<void> {
+    try {
+      const spese = await this.getSpeseAll();
+      const entrate = await this.getEntrateAll();
+
+      // Elimina tutte le spese
+      for (const spesa of spese) {
+        await this.deleteSpesa(spesa.id);
+      }
+
+      // Elimina tutte le entrate
+      for (const entrata of entrate) {
+        await this.deleteEntrata(entrata.id);
+      }
+    } catch (error) {
+      console.error('Errore clearAll:', error);
+      throw error;
+    }
   }
 }
