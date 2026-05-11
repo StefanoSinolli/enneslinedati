@@ -18,15 +18,19 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
   result.data.forEach((row, index) => {
     // Processa SPESE
     if (row['SPESE'] && row['SPESE'].trim() !== '') {
-      const importo = parseFloat(row['PAGATO']?.replace(',', '.') || '0');
-      const daPagare = parseFloat(row['DA PAGARE']?.replace(',', '.') || '0');
+      const pagatoValue = row['PAGATO']?.replace(',', '.') || '0';
+      const daPagareValue = row['DA PAGARE']?.replace(',', '.') || '0';
+      
+      const pagato = parseFloat(pagatoValue) || 0;
+      const daPagare = parseFloat(daPagareValue) || 0;
+      const importo = pagato + daPagare;
       
       spese.push({
         id: `spesa-${anno}-${mese}-${index}`,
         descrizione: row['SPESE'],
-        importo: importo + daPagare,
-        daPagare,
-        pagato: importo,
+        importo: importo || 0,
+        daPagare: daPagare || 0,
+        pagato: pagato || 0,
         scadenza: row['SCADENZA'] || undefined,
         mese,
         anno,
@@ -35,13 +39,14 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
 
     // Processa ENTRATE
     if (row['ENTRATE'] && row['ENTRATE'].trim() !== '' && row['ENTRATE'] !== '-') {
-      const fatturato = parseFloat(row['FATTURATO']?.replace(',', '.') || '0');
+      const fatturatoValue = row['FATTURATO']?.replace(',', '.') || '0';
+      const fatturato = parseFloat(fatturatoValue) || 0;
       
       entrate.push({
         id: `entrata-${anno}-${mese}-${index}`,
         cliente: row['ENTRATE'],
         servizio: row['SERVIZIO'] || '',
-        fatturato,
+        fatturato: fatturato || 0,
         tipoPagamento: (row['TIPO PAGAMENTO'] as any) || '-',
         categoria: (row['SERVIZIO'] as any) || 'E',
         macchinario: row['MACCHINARI'] as any,
@@ -68,6 +73,7 @@ export function parseCSVResoconto(csvText: string) {
 
 // Funzione helper per convertire numero con virgola
 export function parseItalianNumber(value: string): number {
-  if (!value || value === '-') return 0;
-  return parseFloat(value.replace('.', '').replace(',', '.'));
+  if (!value || value === '-' || value.trim() === '') return 0;
+  const parsed = parseFloat(value.replace('.', '').replace(',', '.'));
+  return isNaN(parsed) ? 0 : parsed;
 }
