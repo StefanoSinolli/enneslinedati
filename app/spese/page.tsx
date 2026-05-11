@@ -175,7 +175,6 @@ export default function SpesePage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrizione</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Importo</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pagato</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Da Pagare</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scadenza</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
               </tr>
@@ -183,7 +182,7 @@ export default function SpesePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSpese.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                     Nessuna spesa trovata
                   </td>
                 </tr>
@@ -201,11 +200,6 @@ export default function SpesePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600">
                       € {spesa.pagato.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                      <span className={spesa.daPagare > 0 ? 'text-red-600 font-semibold' : 'text-gray-400'}>
-                        € {spesa.daPagare.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {spesa.scadenza || '-'}
