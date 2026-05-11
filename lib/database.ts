@@ -170,9 +170,9 @@ export class LocalDB {
     const spese = await this.getSpeseByMese(anno, mese);
     const entrate = await this.getEntrateByMese(anno, mese);
 
-    const totaleSpese = spese.reduce((sum, s) => sum + s.importo, 0);
+    const totaleSpese = spese.reduce((sum, s) => sum + s.daPagare, 0);  // Totale = somma daPagare
     const totalePagato = spese.reduce((sum, s) => sum + s.pagato, 0);
-    const totaleDaPagare = spese.reduce((sum, s) => sum + s.daPagare, 0);
+    const totaleDaPagare = totaleSpese - totalePagato;  // Rimanente = Totale - Pagato
 
     const totaleEntrate = entrate.reduce((sum, e) => sum + (e.fatturato || 0), 0);
     const entrateB = entrate.filter(e => e.tipoPagamento === 'B').reduce((sum, e) => sum + (e.fatturato || 0), 0);

@@ -27,7 +27,7 @@ export default function ResocontiPage() {
     pagato: resoconti.reduce((sum, r) => sum + r.totalePagato, 0),
     daPagare: resoconti.reduce((sum, r) => sum + r.totaleDaPagare, 0),
     entrate: resoconti.reduce((sum, r) => sum + r.totaleEntrate, 0),
-    saldo: resoconti.reduce((sum, r) => sum + (r.totaleEntrate - r.totalePagato), 0),
+    saldo: resoconti.reduce((sum, r) => sum + (r.totaleEntrate - r.totaleSpese), 0),  // Saldo = Entrate - Spese Totali
   };
 
   return (
@@ -103,7 +103,7 @@ export default function ResocontiPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {resoconti.map((resoconto) => {
-                const saldo = resoconto.totaleEntrate - resoconto.totalePagato;
+                const saldo = resoconto.totaleEntrate - resoconto.totaleSpese;  // Saldo = Entrate - Spese Totali
                 const hasDati = resoconto.totaleSpese > 0 || resoconto.totaleEntrate > 0;
                 
                 return (
