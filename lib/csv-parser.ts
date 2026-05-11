@@ -23,14 +23,13 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       
       const pagato = parseFloat(pagatoValue) || 0;
       const daPagare = parseFloat(daPagareValue) || 0;
-      const importo = pagato + daPagare;
       
       spese.push({
         id: `spesa-${anno}-${mese}-${index}`,
         descrizione: row['SPESE'],
-        importo: importo || 0,
-        daPagare: daPagare || 0,
-        pagato: pagato || 0,
+        importo: daPagare,  // Importo = daPagare (totale della spesa)
+        daPagare: daPagare,
+        pagato: pagato,
         scadenza: row['SCADENZA'] || undefined,
         mese,
         anno,

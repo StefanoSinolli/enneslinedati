@@ -77,7 +77,7 @@ export default function SpesePage() {
     setEditingSpesa(null);
   };
 
-  const totaleSpese = filteredSpese.reduce((sum, s) => sum + s.importo, 0);
+  const totaleSpese = filteredSpese.reduce((sum, s) => sum + s.daPagare, 0);  // Totale = somma daPagare
   const totalePagato = filteredSpese.reduce((sum, s) => sum + s.pagato, 0);
   const totaleDaPagare = filteredSpese.reduce((sum, s) => sum + s.daPagare, 0);
 
@@ -251,13 +251,13 @@ function SpesaModal({ spesa, onSave, onClose }: { spesa: Spesa, onSave: (s: Spes
   const [formData, setFormData] = useState(spesa);
   const mesi = ['GENNAIO', 'FEBBRAIO', 'MARZO', 'APRILE', 'MAGGIO', 'GIUGNO', 'LUGLIO', 'AGOSTO', 'SETTEMBRE', 'OTTOBRE', 'NOVEMBRE', 'DICEMBRE'];
 
-  // Ricalcola importo quando cambiano pagato e daPagare
+  // Ricalcola importo quando cambia daPagare
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      importo: prev.pagato + prev.daPagare
+      importo: prev.daPagare  // Importo = daPagare
     }));
-  }, [formData.pagato, formData.daPagare]);
+  }, [formData.daPagare]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

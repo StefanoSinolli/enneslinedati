@@ -22,7 +22,7 @@ export default function HomePage() {
   }, [annoCorrente]);
 
   // Calcoli statistiche
-  const totaleSpeseAnno = spese.reduce((sum, s) => sum + s.importo, 0);  // Solo totale importi
+  const totaleSpeseAnno = spese.reduce((sum, s) => sum + s.daPagare, 0);  // Totale = somma dei daPagare
   const totaleEntrateAnno = entrate.reduce((sum, e) => sum + (e.fatturato || 0), 0);
   const saldo = totaleEntrateAnno - totaleSpeseAnno;
   const clienti = new Set(entrate.map(e => e.cliente)).size;
@@ -36,7 +36,7 @@ export default function HomePage() {
     
     return {
       mese: mese.substring(0, 3),
-      spese: speseDelMese.reduce((sum, s) => sum + s.importo, 0),  // Usa importo (totale)
+      spese: speseDelMese.reduce((sum, s) => sum + s.daPagare, 0),  // Usa daPagare
       entrate: entrateDelMese.reduce((sum, e) => sum + (e.fatturato || 0), 0),
     };
   });
