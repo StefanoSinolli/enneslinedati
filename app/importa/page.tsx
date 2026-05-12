@@ -82,6 +82,9 @@ export default function ImportaPage() {
           fileName: file.name, 
           recordsProcessed: totalSpese + totalEntrate 
         });
+        
+        // Piccolo delay per permettere al browser di aggiornare la UI
+        await new Promise(resolve => setTimeout(resolve, 10));
 
         const text = await file.text();
         const { spese, entrate } = parseCSVSpese(text, mese, anno);
@@ -98,6 +101,10 @@ export default function ImportaPage() {
           total: filesArray.length, 
           fileName: file.name, 
           recordsProcessed: totalSpese + totalEntrate 
+        });
+        
+        // Piccolo delay per vedere il progresso
+        await new Promise(resolve => setTimeout(resolve, 10));
         });
       }
 
