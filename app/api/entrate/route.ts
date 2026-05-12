@@ -60,3 +60,26 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const sql = neon(process.env.ennes_POSTGRES_URL!);
+    const { searchParams } = new URL(request.url);
+    const anno = searchParams.get('anno');
+    const mese = searchParams.get('mese');
+
+    if (!anno || !mese) {
+      return NextResponse.json({ error: 'Anno e mese sono obbligatori' }, { status: 400 });
+    }
+
+    const result = await sql`
+      DELETE FROM entrate 
+      WHERE anno = ${parseInt(anno)} AND mese = ${mese}
+    `;
+
+    return NextResponse.json({ success: true, deleted: result.length });
+  } catch (error) {
+    console.error('Errore DELETE entrate:', error);
+    return NextResponse.json({ error: 'Errore nell\'eliminazione delle entrate' }, { status: 500 });
+  }
+}

@@ -102,6 +102,24 @@ export default function ImportaPage() {
     }
   };
 
+  const handleDeleteMonth = async (anno: number, mese: string) => {
+    if (confirm(`Sei sicuro di voler eliminare TUTTI i dati di ${mese} ${anno}? Questa azione non può essere annullata.`)) {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      try {
+        await LocalDB.deleteSpeseByMese(anno, mese);
+        await LocalDB.deleteEntrateByMese(anno, mese);
+        setSuccess(`Dati di ${mese} ${anno} eliminati con successo`);
+      } catch (err) {
+        setError(`Errore durante l'eliminazione: ${err}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   const handleExportData = async () => {
     try {
       const spese = await LocalDB.getSpeseAll();
@@ -239,22 +257,32 @@ export default function ImportaPage() {
               <div className="space-y-2">
                 {['GENNAIO', 'FEBBRAIO', 'MARZO', 'APRILE', 'MAGGIO', 'GIUGNO', 
                   'LUGLIO', 'AGOSTO', 'SETTEMBRE', 'OTTOBRE', 'NOVEMBRE', 'DICEMBRE'].map(mese => (
-                  <div key={mese} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{mese.substring(0, 3)}</span>
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={(e) => handleFileUpload(e, anno, mese)}
-                      className="hidden"
-                      id={`upload-${anno}-${mese}`}
-                      disabled={loading}
-                    />
-                    <label
-                      htmlFor={`upload-${anno}-${mese}`}
-                      className="cursor-pointer text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded hover:bg-purple-100 transition-colors"
-                    >
-                      Carica
-                    </label>
+                  <div key={mese} className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-gray-600 w-12">{mese.substring(0, 3)}</span>
+                    <div className="flex gap-1">
+                      <input
+                        type="file"
+                        accept=".csv"
+                        onChange={(e) => handleFileUpload(e, anno, mese)}
+                        className="hidden"
+                        id={`upload-${anno}-${mese}`}
+                        disabled={loading}
+                      />
+                      <label
+                        htmlFor={`upload-${anno}-${mese}`}
+                        className="cursor-pointer text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded hover:bg-purple-100 transition-colors"
+                      >
+                        Carica
+                      </label>
+                      <button
+                        onClick={() => handleDeleteMonth(anno, mese)}
+                        disabled={loading}
+                        className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition-colors disabled:opacity-50"
+                        title={`Elimina tutti i dati di ${mese} ${anno}`}
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

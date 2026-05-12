@@ -68,6 +68,18 @@ export class LocalDB {
     }
   }
 
+  static async deleteSpeseByMese(anno: number, mese: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/spese?anno=${anno}&mese=${mese}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Errore eliminazione spese del mese');
+    } catch (error) {
+      console.error('Errore deleteSpeseByMese:', error);
+      throw error;
+    }
+  }
+
   // ENTRATE
   static async getEntrateAll(): Promise<Entrata[]> {
     try {
@@ -132,6 +144,18 @@ export class LocalDB {
       if (!res.ok) throw new Error('Errore eliminazione entrata');
     } catch (error) {
       console.error('Errore deleteEntrata:', error);
+      throw error;
+    }
+  }
+
+  static async deleteEntrateByMese(anno: number, mese: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/entrate?anno=${anno}&mese=${mese}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Errore eliminazione entrate del mese');
+    } catch (error) {
+      console.error('Errore deleteEntrateByMese:', error);
       throw error;
     }
   }
