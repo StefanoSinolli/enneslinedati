@@ -10,6 +10,12 @@ export default function ImportaPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<{spese: number, entrate: number} | null>(null);
+  const [progress, setProgress] = useState<{
+    current: number;
+    total: number;
+    fileName: string;
+    recordsProcessed: number;
+  } | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, anno: number, mese: string) => {
     const file = event.target.files?.[0];
@@ -19,21 +25,26 @@ export default function ImportaPage() {
     setError(null);
     setSuccess(null);
     setStats(null);
+    setProgress({ current: 0, total: 1, fileName: file.name, recordsProcessed: 0 });
 
     try {
       const text = await file.text();
       const { spese, entrate } = parseCSVSpese(text, mese, anno);
 
+      setProgress({ current: 0, total: 1, fileName: file.name, recordsProcessed: spese.length + entrate.length });
+
       // Merge dei dati: aggiorna se esiste, crea se nuovo
       await LocalDB.saveSpeseAll(spese);
       await LocalDB.saveEntrateAll(entrate);
 
+      setProgress({ current: 1, total: 1, fileName: file.name, recordsProcessed: spese.length + entrate.length });
       setSuccess(`Importazione completata: ${mese} ${anno} (merge)`);
       setStats({ spese: spese.length, entrate: entrate.length });
     } catch (err) {
       setError(`Errore durante l'importazione: ${err}`);
     } finally {
       setLoading(false);
+      setTimeout(() => setProgress(null), 2000); // Nascondi dopo 2 secondi
     }
   };
 
@@ -44,12 +55,16 @@ export default function ImportaPage() {
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setProgress(null);
 
     let totalSpese = 0;
     let totalEntrate = 0;
+    const filesArray = Array.from(files);
 
     try {
-      for (const file of Array.from(files)) {
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        
         // Estrai mese e anno dal nome del file
         // Formato: "GENNAIO 2024-GENNAIO 2024.csv"
         const match = file.name.match(/([A-Z]+)\s+(\d{4})/);
@@ -61,6 +76,13 @@ export default function ImportaPage() {
         const mese = match[1];
         const anno = parseInt(match[2]);
 
+        setProgress({ 
+          current: i, 
+          total: filesArray.length, 
+          fileName: file.name, 
+          recordsProcessed: totalSpese + totalEntrate 
+        });
+
         const text = await file.text();
         const { spese, entrate } = parseCSVSpese(text, mese, anno);
 
@@ -70,14 +92,22 @@ export default function ImportaPage() {
 
         totalSpese += spese.length;
         totalEntrate += entrate.length;
+        
+        setProgress({ 
+          current: i + 1, 
+          total: filesArray.length, 
+          fileName: file.name, 
+          recordsProcessed: totalSpese + totalEntrate 
+        });
       }
 
-      setSuccess(`Importazione completata: ${files.length} file processati (merge)`);
+      setSuccess(`Importazione completata: ${filesArray.length} file processati (merge)`);
       setStats({ spese: totalSpese, entrate: totalEntrate });
     } catch (err) {
       setError(`Errore durante l'importazione: ${err}`);
     } finally {
       setLoading(false);
+      setTimeout(() => setProgress(null), 2000); // Nascondi dopo 2 secondi
     }
   };
 
@@ -200,6 +230,29 @@ export default function ImportaPage() {
         <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
           <AlertCircle className="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
           <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
+      {/* Progress bar */}
+      {progress && (
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-blue-900 font-medium">
+              Importazione in corso... {progress.current}/{progress.total}
+            </p>
+            <p className="text-blue-700 text-sm">
+              {Math.round((progress.current / progress.total) * 100)}%
+            </p>
+          </div>
+          <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(progress.current / progress.total) * 100}%` }}
+            ></div>
+          </div>
+          <p className="text-blue-700 text-sm">
+            📄 {progress.fileName} • {progress.recordsProcessed} record processati
+          </p>
         </div>
       )}
 
