@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS entrate (
   fatturato DECIMAL(10, 2) NOT NULL DEFAULT 0,
   tipo_pagamento VARCHAR(1) CHECK (tipo_pagamento IN ('B', 'C', 'N', '-')),
   categoria VARCHAR(1) CHECK (categoria IN ('E', 'M', 'P')),
-  macchinario VARCHAR(10) CHECK (macchinario IN ('L', 'RF', 'C', 'PRESSO', 'E', 'P', 'M') OR macchinario IS NULL),
+  macchinario VARCHAR(10),
   info TEXT,
   data VARCHAR(50) NOT NULL,
   mese VARCHAR(20) NOT NULL,

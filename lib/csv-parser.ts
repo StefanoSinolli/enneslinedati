@@ -45,6 +45,10 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       const categoriaValue = row['SERVIZIO']?.trim();
       const categoria = (categoriaValue === '-' || !categoriaValue) ? null : categoriaValue;
       
+      // Converti "-" e valori vuoti in null per macchinario
+      const macchinarioValue = row['MACCHINARI']?.trim();
+      const macchinario = (macchinarioValue === '-' || !macchinarioValue) ? null : macchinarioValue;
+      
       entrate.push({
         id: `entrata-${anno}-${mese}-${index}`,
         cliente: row['ENTRATE'],
@@ -52,7 +56,7 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
         fatturato: fatturato || 0,
         tipoPagamento: (row['TIPO PAGAMENTO'] as any) || '-',
         categoria: categoria as any,  // La categoria (E/M/P) è nella colonna "SERVIZIO"
-        macchinario: row['MACCHINARI'] as any,
+        macchinario: macchinario as any,
         info: row['Info'] || undefined,
         data: `${mese} ${anno}`,
         mese,
