@@ -18,8 +18,11 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
   result.data.forEach((row, index) => {
     // Processa SPESE
     if (row['SPESE'] && row['SPESE'].trim() !== '') {
-      const pagatoValue = row['PAGATO']?.replace(',', '.') || '0';
-      const daPagareValue = row['DA PAGARE']?.replace(',', '.') || '0';
+      const pagatoRaw = row['PAGATO']?.trim();
+      const pagatoValue = (pagatoRaw === '-' || !pagatoRaw) ? '0' : pagatoRaw.replace(',', '.');
+      
+      const daPagareRaw = row['DA PAGARE']?.trim();
+      const daPagareValue = (daPagareRaw === '-' || !daPagareRaw) ? '0' : daPagareRaw.replace(',', '.');
       
       const pagato = parseFloat(pagatoValue) || 0;
       const daPagare = parseFloat(daPagareValue) || 0;
@@ -37,7 +40,8 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
     }
 
     // Processa ENTRATE - controlla se c'è almeno un dato entrata (fatturato o cliente)
-    const fatturatoValue = row['FATTURATO']?.replace(',', '.') || '0';
+    const fatturatoRaw = row['FATTURATO']?.trim();
+    const fatturatoValue = (fatturatoRaw === '-' || !fatturatoRaw) ? '0' : fatturatoRaw.replace(',', '.');
     const fatturato = parseFloat(fatturatoValue) || 0;
     const clienteValue = row['ENTRATE']?.trim();
     
@@ -54,15 +58,23 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       const macchinarioValue = row['MACCHINARI']?.trim();
       const macchinario = (macchinarioValue === '-' || !macchinarioValue) ? null : macchinarioValue;
       
+      // Gestisci servizio: "-" o vuoto → stringa vuota
+      const servizioValue = row['Info']?.trim();
+      const servizio = (servizioValue === '-' || !servizioValue) ? '' : servizioValue;
+      
+      // Gestisci tipo pagamento: vuoto o "-" → "-"
+      const tipoPagamentoValue = row['TIPO PAGAMENTO']?.trim();
+      const tipoPagamento = (!tipoPagamentoValue || tipoPagamentoValue === '-') ? '-' : tipoPagamentoValue;
+      
       entrate.push({
         id: `entrata-${anno}-${mese}-${index}`,
         cliente: cliente,
-        servizio: row['Info'] || '',  // Il servizio vero è nella colonna "Info"
-        fatturato: fatturato || 0,
-        tipoPagamento: (row['TIPO PAGAMENTO'] as any) || '-',
+        servizio: servizio,
+        fatturato: fatturato,
+        tipoPagamento: tipoPagamento as any,
         categoria: categoria as any,  // La categoria (E/M/P) è nella colonna "SERVIZIO"
         macchinario: macchinario as any,
-        info: row['Info'] || undefined,
+        info: servizio || undefined,
         data: `${mese} ${anno}`,
         mese,
         anno,
