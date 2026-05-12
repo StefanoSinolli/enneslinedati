@@ -36,10 +36,15 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       });
     }
 
-    // Processa ENTRATE
-    if (row['ENTRATE'] && row['ENTRATE'].trim() !== '' && row['ENTRATE'] !== '-') {
-      const fatturatoValue = row['FATTURATO']?.replace(',', '.') || '0';
-      const fatturato = parseFloat(fatturatoValue) || 0;
+    // Processa ENTRATE - controlla se c'è almeno un dato entrata (fatturato o cliente)
+    const fatturatoValue = row['FATTURATO']?.replace(',', '.') || '0';
+    const fatturato = parseFloat(fatturatoValue) || 0;
+    const clienteValue = row['ENTRATE']?.trim();
+    
+    // Importa l'entrata se c'è un cliente O se c'è un fatturato
+    if ((clienteValue && clienteValue !== '-') || fatturato > 0) {
+      // Se il cliente è vuoto o "-", usa "Cliente Ignoto"
+      const cliente = (clienteValue && clienteValue !== '-') ? clienteValue : 'Cliente Ignoto';
       
       // Converti "-" in null per categoria
       const categoriaValue = row['SERVIZIO']?.trim();
@@ -51,7 +56,7 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       
       entrate.push({
         id: `entrata-${anno}-${mese}-${index}`,
-        cliente: row['ENTRATE'],
+        cliente: cliente,
         servizio: row['Info'] || '',  // Il servizio vero è nella colonna "Info"
         fatturato: fatturato || 0,
         tipoPagamento: (row['TIPO PAGAMENTO'] as any) || '-',
