@@ -24,18 +24,11 @@ export default function ImportaPage() {
       const text = await file.text();
       const { spese, entrate } = parseCSVSpese(text, mese, anno);
 
-      // Salva i dati
-      const speseEsistenti = await LocalDB.getSpeseAll();
-      const entrateEsistenti = await LocalDB.getEntrateAll();
+      // Merge dei dati: aggiorna se esiste, crea se nuovo
+      await LocalDB.saveSpeseAll(spese);
+      await LocalDB.saveEntrateAll(entrate);
 
-      // Rimuovi dati esistenti per questo mese/anno per evitare duplicati
-      const speseFiltered = speseEsistenti.filter(s => !(s.anno === anno && s.mese === mese));
-      const entrateFiltered = entrateEsistenti.filter(e => !(e.anno === anno && e.mese === mese));
-
-      await LocalDB.saveSpeseAll([...speseFiltered, ...spese]);
-      await LocalDB.saveEntrateAll([...entrateFiltered, ...entrate]);
-
-      setSuccess(`Importazione completata: ${mese} ${anno}`);
+      setSuccess(`Importazione completata: ${mese} ${anno} (merge)`);
       setStats({ spese: spese.length, entrate: entrate.length });
     } catch (err) {
       setError(`Errore durante l'importazione: ${err}`);
@@ -71,21 +64,15 @@ export default function ImportaPage() {
         const text = await file.text();
         const { spese, entrate } = parseCSVSpese(text, mese, anno);
 
-        // Salva i dati
-        const speseEsistenti = await LocalDB.getSpeseAll();
-        const entrateEsistenti = await LocalDB.getEntrateAll();
-
-        const speseFiltered = speseEsistenti.filter(s => !(s.anno === anno && s.mese === mese));
-        const entrateFiltered = entrateEsistenti.filter(e => !(e.anno === anno && e.mese === mese));
-
-        await LocalDB.saveSpeseAll([...speseFiltered, ...spese]);
-        await LocalDB.saveEntrateAll([...entrateFiltered, ...entrate]);
+        // Merge dei dati: aggiorna se esiste, crea se nuovo
+        await LocalDB.saveSpeseAll(spese);
+        await LocalDB.saveEntrateAll(entrate);
 
         totalSpese += spese.length;
         totalEntrate += entrate.length;
       }
 
-      setSuccess(`Importazione completata: ${files.length} file processati`);
+      setSuccess(`Importazione completata: ${files.length} file processati (merge)`);
       setStats({ spese: totalSpese, entrate: totalEntrate });
     } catch (err) {
       setError(`Errore durante l'importazione: ${err}`);
