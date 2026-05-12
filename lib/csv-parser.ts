@@ -50,9 +50,24 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       // Se il cliente è vuoto o "-", usa "Cliente Ignoto"
       const cliente = (clienteValue && clienteValue !== '-') ? clienteValue : 'Cliente Ignoto';
       
-      // Converti "-" in null per categoria
+      // Converti "-" in null per categoria, e mappa i codici macchinario
       const categoriaValue = row['SERVIZIO']?.trim();
-      const categoria = (categoriaValue === '-' || !categoriaValue) ? null : categoriaValue;
+      let categoria: string | null = null;
+      
+      if (categoriaValue && categoriaValue !== '-') {
+        // Mappa i codici macchinario → M (Macchinari)
+        if (['L', 'RF', 'C', 'PS', 'PRESSO'].includes(categoriaValue)) {
+          categoria = 'M';
+        } 
+        // Categorie valide: E, M, P
+        else if (['E', 'M', 'P'].includes(categoriaValue)) {
+          categoria = categoriaValue;
+        }
+        // Altro → null
+        else {
+          categoria = null;
+        }
+      }
       
       // Converti "-" e valori vuoti in null per macchinario
       const macchinarioValue = row['MACCHINARI']?.trim();
