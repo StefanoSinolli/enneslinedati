@@ -101,7 +101,11 @@ export class LocalDB {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(entrata),
         });
-        if (!res.ok) throw new Error('Errore creazione entrata');
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error('Errore API creazione entrata:', errorData);
+          throw new Error(`Errore creazione entrata: ${errorData.details || errorData.error}`);
+        }
       }
     } catch (error) {
       console.error('Errore saveEntrata:', error);

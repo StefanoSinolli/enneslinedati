@@ -43,14 +43,20 @@ export async function POST(request: NextRequest) {
 
     const { id, cliente, servizio, fatturato, tipoPagamento, categoria, macchinario, info, data, mese, anno } = body;
 
+    console.log('Creazione entrata:', { id, cliente, servizio, fatturato, tipoPagamento, categoria, macchinario, info, data, mese, anno });
+
     await sql`
       INSERT INTO entrate (id, cliente, servizio, fatturato, tipo_pagamento, categoria, macchinario, info, data, mese, anno)
       VALUES (${id}, ${cliente}, ${servizio}, ${fatturato}, ${tipoPagamento}, ${categoria}, ${macchinario || null}, ${info || null}, ${data}, ${mese}, ${anno})
     `;
 
     return NextResponse.json({ success: true, id });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Errore POST entrate:', error);
-    return NextResponse.json({ error: 'Errore nella creazione dell\'entrata' }, { status: 500 });
+    console.error('Dettagli errore:', error.message, error.code);
+    return NextResponse.json({ 
+      error: 'Errore nella creazione dell\'entrata',
+      details: error.message 
+    }, { status: 500 });
   }
 }
