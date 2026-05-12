@@ -41,13 +41,17 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       const fatturatoValue = row['FATTURATO']?.replace(',', '.') || '0';
       const fatturato = parseFloat(fatturatoValue) || 0;
       
+      // Converti "-" in null per categoria
+      const categoriaValue = row['SERVIZIO']?.trim();
+      const categoria = (categoriaValue === '-' || !categoriaValue) ? null : categoriaValue;
+      
       entrate.push({
         id: `entrata-${anno}-${mese}-${index}`,
         cliente: row['ENTRATE'],
-        servizio: row['SERVIZIO'] || '',
+        servizio: row['Info'] || '',  // Il servizio vero è nella colonna "Info"
         fatturato: fatturato || 0,
         tipoPagamento: (row['TIPO PAGAMENTO'] as any) || '-',
-        categoria: (row['SERVIZIO'] as any) || 'E',
+        categoria: categoria as any,  // La categoria (E/M/P) è nella colonna "SERVIZIO"
         macchinario: row['MACCHINARI'] as any,
         info: row['Info'] || undefined,
         data: `${mese} ${anno}`,
