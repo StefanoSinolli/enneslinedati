@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS entrate (
   servizio TEXT NOT NULL,
   fatturato DECIMAL(10, 2) NOT NULL DEFAULT 0,
   tipo_pagamento VARCHAR(1) CHECK (tipo_pagamento IN ('B', 'C', 'N', '-')),
-  categoria VARCHAR(1) CHECK (categoria IN ('E', 'M', 'P')),
+  categoria VARCHAR(1),
   macchinario VARCHAR(10),
   info TEXT,
   data VARCHAR(50) NOT NULL,
