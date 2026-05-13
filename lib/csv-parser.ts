@@ -77,9 +77,30 @@ export function parseCSVSpese(csvText: string, mese: string, anno: number): { sp
       const servizioValue = row['Info']?.trim();
       const servizio = (servizioValue === '-' || !servizioValue) ? '' : servizioValue;
       
-      // Gestisci tipo pagamento: vuoto o "-" → "-"
-      const tipoPagamentoValue = row['TIPO PAGAMENTO']?.trim();
-      const tipoPagamento = (!tipoPagamentoValue || tipoPagamentoValue === '-') ? '-' : tipoPagamentoValue;
+      // Gestisci tipo pagamento: normalizza e valida (solo 1 carattere)
+      const tipoPagamentoRaw = row['TIPO PAGAMENTO']?.trim().toUpperCase();
+      let tipoPagamento = '-';
+      
+      if (tipoPagamentoRaw && tipoPagamentoRaw !== '-') {
+        // Valori validi: B, C, N
+        if (['B', 'C', 'N'].includes(tipoPagamentoRaw)) {
+          tipoPagamento = tipoPagamentoRaw;
+        } 
+        // Se è più lungo, prendi solo il primo carattere se valido
+        else if (tipoPagamentoRaw.length > 1) {
+          const firstChar = tipoPagamentoRaw[0];
+          if (['B', 'C', 'N'].includes(firstChar)) {
+            tipoPagamento = firstChar;
+          } else {
+            console.warn(`Tipo pagamento non valido: "${tipoPagamentoRaw}", uso "-"`);
+            tipoPagamento = '-';
+          }
+        }
+        // Altro valore singolo non valido → "-"
+        else {
+          tipoPagamento = '-';
+        }
+      }
       
       entrate.push({
         id: `entrata-${anno}-${mese}-${index}`,
